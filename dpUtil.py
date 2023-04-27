@@ -15,7 +15,7 @@ def readData(fileName):
     return data
 
 #Using the raw data table , return a table with the average of the 3 replicates and standard deviation
-def getAverageAndStd(rawData):
+def getAverageAndStd(rawData, dilutionTable):
     #Sicnce sample names are in format of 10B1[01]01A20221108, we only keep samples with lengh greater than 10 and start with 10
     tempdata = rawData
     tempdata = tempdata[tempdata['Sample ID'].str.len() > 10]
@@ -41,7 +41,20 @@ def getAverageAndStd(rawData):
     #Convert Machine given RSD into standard deviation and add to the table
     tempTable['Machine Std Dev'] = tempTable['RSD (Conc)'] * tempTable['Calculated Average'] / 100
 
+    #The volumn digestion is stored in dilutionTbale 
+    #The mass of digestion is stored in dilutionTable
+    for row in tempTable.itertuples():
+        digestionVolumn = dilutionTable[dilutionTable['SA ID '] == row[1]]["volume digestion (ml)"].values[0].astype(float)
+        mass = dilutionTable[dilutionTable['SA ID '] == row[1]]["mass sample (g)"].values[0].astype(float)
+        tempTable.loc[row[0], 'Digestion Volumn'] = digestionVolumn
+        tempTable.loc[row[0], 'Mass'] = mass
+
+
+    #Error Column
+    #Error = srqt((Volumn of Digestion * mass of digestion * sd of current)**2 + (Volumn of D * Mass of D * 1.5)**2 + (Volumn of D * Mass of D * 5)**2)
+    tempTable['Error'] = np.sqrt((tempTable['Digestion Volumn'] * tempTable['Mass'] * tempTable['Calcuated Std Dev'])**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 1.5)**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 5)**2)
     return tempTable
+
 
 #Table with only the blank samples
 def getBlankTable(avgAndStdDev):
@@ -98,6 +111,9 @@ def exportToCSV(avgAndStdDev, blankTable, ppmTable):
     if not os.path.exists(newDirectory):
         mkdirCommand = "mkdir " + newDirectory
         os.system(mkdirCommand)
+
+    #if the column is empty in avg or ppm table, fill it with 0 
+
     avgAndStdDev.to_csv(newDirectory + "/avgAndStdDev.csv")
     blankTable.to_csv(newDirectory + "/blankTable.csv")
     ppmTable.to_csv(newDirectory + "/ppmTable.csv")
@@ -119,7 +135,12 @@ def workupData(rawData, dilutionTable):
 
     rawData = readData(rawData)
     dilutionTable = readData(dilutionTable)
-    avgAndStdDev = getAverageAndStd(rawData)
+    avgAndStdDev = getAverageAndStd(rawData, dilutionTable)
     blankTable = getBlankTable(avgAndStdDev)
     ppmTable = calculatePPM(blankTable, dilutionTable, avgAndStdDev)
+
+    #fill empty columns with 0 for avgAndStdDev and ppmTable
+    avgAndStdDev = avgAndStdDev.fillna(0)
+    ppmTable = ppmTable.fillna(0)
+    
     return avgAndStdDev, blankTable, ppmTable

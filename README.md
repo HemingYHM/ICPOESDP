@@ -36,8 +36,3 @@ python3 calibrationTool.py
 ### Links
 - [SALT Lab](https://salt.engin.berkeley.edu/)
 - [Documentation](https://salt.nuc.berkeley.edu/) (Ony accessible to SALT lab members)
-
-
-
-
-
