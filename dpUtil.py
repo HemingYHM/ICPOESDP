@@ -22,7 +22,7 @@ def getAverageAndStd(rawData, dilutionTable):
     tempdata = tempdata[tempdata['Sample ID'].str.startswith('10')]
     
     #Create a new table with only the values needed: Sample ID, Analyte Name, Conc (Calib)1, Conc (Calib)2, Conc (Calib)3. As well as the given RSDs
-    tempTable = tempdata[['Sample ID', 'Analyte Name', 'Conc (Calib)1', 'Conc (Calib)2', 'Conc (Calib)3', 'RSD (Corr Int)', 'RSD (Conc)']]
+    tempTable = tempdata[['Sample ID', 'Analyte Name', 'Conc (Calib)1', 'Conc (Calib)2', 'Conc (Calib)3', 'RSD (Corr Int)', 'RSD (Conc)', 'Int (Corr)', 'Conc (Calib)']]
 
     #parse numerical columns to float
     tempTable['Conc (Calib)1'] = tempTable['Conc (Calib)1'].astype(float)
@@ -30,6 +30,8 @@ def getAverageAndStd(rawData, dilutionTable):
     tempTable['Conc (Calib)3'] = tempTable['Conc (Calib)3'].astype(float)
     tempTable['RSD (Corr Int)'] = tempTable['RSD (Corr Int)'].astype(float)
     tempTable['RSD (Conc)'] = tempTable['RSD (Conc)'].astype(float)
+    tempTable['Int (Corr)'] = tempTable['Int (Corr)'].astype(float)
+    tempTable['Conc (Calib)'] = tempTable['Conc (Calib)'].astype(float)
 
     #Calculate the average of the 3 replicates by brute force
     tempTable['Calculated Average'] = tempTable[['Conc (Calib)1', 'Conc (Calib)2', 'Conc (Calib)3']].mean(axis=1)
@@ -52,7 +54,12 @@ def getAverageAndStd(rawData, dilutionTable):
 
     #Error Column
     #Error = srqt((Volumn of Digestion * mass of digestion * sd of current)**2 + (Volumn of D * Mass of D * 1.5)**2 + (Volumn of D * Mass of D * 5)**2)
-    tempTable['Error'] = np.sqrt((tempTable['Digestion Volumn'] * tempTable['Mass'] * tempTable['Calcuated Std Dev'])**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 1.5)**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 5)**2)
+    tempTable['CalculatedError'] = np.sqrt((tempTable['Digestion Volumn'] * tempTable['Mass'] * tempTable['Calcuated Std Dev'])**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 1.5)**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 5)**2)
+    tempTable['XError'] = tempTable["RSD (Conc)"] * tempTable['Conc (Calib)'] / 100
+
+    
+    #Y error is the machine given RSD * Int (Corr)
+    tempTable['YError'] = tempTable['RSD (Corr Int)'] * tempTable['Int (Corr)'] / 100
     return tempTable
 
 
@@ -98,7 +105,11 @@ def calculatePPM(blankTable, dilutionTable, avgAndStdDev):
     avgAndStdDev = avgAndStdDev[avgAndStdDev['Sample ID'].str.startswith('10B') == False]
     #remove empty ppm 
     avgAndStdDev = avgAndStdDev[avgAndStdDev['Final PPM'].isnull() == False]
-    return avgAndStdDev
+
+    #only keep the SA ID, analyte name, and final ppm
+    ppmTable = avgAndStdDev[['Sample ID', 'Analyte Name', 'Final PPM']]
+    return ppmTable
+
 
 
 

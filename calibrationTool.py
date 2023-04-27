@@ -7,7 +7,7 @@ import numpy as np
 deltaC = 1.5
 deltaD = 5
 
-def plotCalibrationCurve(rawData, ppmTable):
+def plotCalibrationCurve(rawData, avgTable):
     """Reads in the raw data, and first constructs the calibration table
 
     Calibration Table, this would be only consisted of the Sample ID that are numbers i.e 0, 25, 50, 100, since those are 
@@ -28,7 +28,7 @@ def plotCalibrationCurve(rawData, ppmTable):
     tempTable = tempTable[tempTable['Sample ID'].str.endswith('ppm')]
     #if there are duplicate Sample ID, and analyte name keep the latter one
     tempTable = tempTable.drop_duplicates(subset=['Sample ID', 'Analyte Name'], keep='last')
-    ppmError = pd.read_csv(ppmTable)
+    ppmError = pd.read_csv('avgAndStdDev.csv')
     #Graph Name: Analyte Name Calibration Curve 
     #X axis: Sample ID
     #Y axis: Int (Corr)
@@ -39,8 +39,6 @@ def plotCalibrationCurve(rawData, ppmTable):
     #parse sample ID into numbers, and remove the ppm at the end
     tempTable['Sample ID'] = tempTable['Sample ID'].str.replace('ppm', '')
     tempTable['Sample ID'] = tempTable['Sample ID'].astype(float)
-
-    print(ppmError)
     #loop through each analyte name
 
     for analyte in analyteNames:
@@ -49,34 +47,34 @@ def plotCalibrationCurve(rawData, ppmTable):
         #get the x and y values
         xfit = currentAnalyteData['Sample ID']
         yfit = currentAnalyteData['Int (Corr)']
-
-        #plot the data points
-        #plot the line of best fit
         m, b = np.polyfit(xfit, yfit, 1)
+        #plot all these red and name them calibration points
+        plt.plot(xfit, yfit, 'ro', label='Calibration Points')
+        plt.plot(xfit, m*xfit + b, label='Line of Best Fit')
+
+
+        elementTable = ppmError[ppmError['Analyte Name'] == analyte]
+        sampleID = elementTable['Sample ID']
+        sampleX = elementTable['Conc (Calib)']
+        sampleY = elementTable['Int (Corr)']
+        sampleXError = elementTable['RSD (Conc)']
+        #absolute value of all Y errors
+        sampleYError = elementTable['YError'].abs()
+        
+        #plot points
+        plt.errorbar(sampleX, sampleY, xerr=sampleXError, yerr=sampleYError, fmt='o', label='Data Points')
+
+
+        plt.title(analyte + ' Calibration Curve')
         plt.xlabel('PPM')
         plt.ylabel('Intensity')
+        plt.show()
+
+
 
         
-        #Plot the data points from PPM table that has same analyte name, x being ppm y being 0
-        ppmErrorData = ppmError[ppmError['Analyte Name'] == analyte]
-        ID = ppmErrorData['Sample ID']
-        X = ppmErrorData['Final PPM']
-        #Y is the line of best first 
-        Y = m*X + b
-        error = ppmErrorData['Error']
-        #plot the data points
-        plt.errorbar(X, Y, yerr = error, fmt = 'o', label = analyte + ' Data Points')
-        #plot the line of best fit
 
-        #Graph Name
-        plt.title(analyte + ' Calibration Curve')
-        #X axis
-        plt.xlabel('PPM')
-        #Y axis
-        plt.ylabel('Intensity')
-        plt.plot(X, Y, label = analyte + ' Line of Best Fit')
-        plt.legend()
-        plt.show()
+
 
 
 
