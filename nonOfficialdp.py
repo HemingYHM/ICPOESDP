@@ -6,6 +6,7 @@ from tkinter import filedialog
 from tkinter import *
 import pandas as pd
 import dpUtil as dp
+import calibrationTool as ct
 
 
 def SelectRawData():
@@ -18,6 +19,11 @@ def SelectDilutionTable():
     global dilutionTable
     dilutionTable = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     dilutionTableButton.config(text = str(dilutionTable))
+
+def SelectPPMTableForCalibration():
+    global PPMTableForCalibration
+    PPMTableForCalibration = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
+    PPMTableForCalibrationButton.config(text = str(PPMTableForCalibration))
 
 def processData():
     #button that processes the data
@@ -32,6 +38,11 @@ def exportToCSV(table1, table2, table3):
     table2.to_csv(directory + "/blankTable.csv")
     table3.to_csv(directory + "/ppmTable.csv")
     exportDataButton.config(text="Data Exported :D")
+
+def graphCalibration(raw, PPM):
+    #button that graphs the calibration
+    ct.plotCalibrationCurve(raw, PPM)
+    graphCalibrationButton.config(text="Calibration Graphed :D")
 
 
 
@@ -62,6 +73,17 @@ processDataButton.pack()
 #Button that asks for a directory to save the data to, and export the three tbales to csv files in that directory
 exportDataButton = tk.Button(root, text="Export Data", command=lambda: exportToCSV(table1, table2, table3))
 exportDataButton.pack()
+
+#Add a button to select the ppm table for calibration
+PPMTableForCalibrationButton = tk.Button(root, text="Select PPM Table For Calibration", command=lambda: SelectPPMTableForCalibration())
+PPMTableForCalibrationButton.pack()
+
+#Add a button to graph the calibration
+graphCalibrationButton = tk.Button(root, text="Graph Calibration", command=lambda: graphCalibration(rawData, PPMTableForCalibration))
+graphCalibrationButton.pack()
+
+
+
 
 root.mainloop()
 

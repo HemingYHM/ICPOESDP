@@ -84,5 +84,3 @@ def plotCalibrationCurve(rawData, avgTable):
 
 
 
-
-plotCalibrationCurve('aprNew.csv', 'ppmTable.csv')
