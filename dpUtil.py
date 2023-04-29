@@ -11,11 +11,15 @@ warnings.filterwarnings('ignore')
 
 #read raw data from file and return pandas table
 def readData(fileName):
+    """Reads data from a csv file and returns a pandas table"""
     data = pd.read_csv(fileName)
     return data
 
 #Using the raw data table , return a table with the average of the 3 replicates and standard deviation
 def getAverageAndStd(rawData, dilutionTable):
+    """Returns a table with the average of the 3 replicates and standard deviation, with some extra information regarding the sample
+    such as error, calculated error, and sample intensity
+    """
     #Sicnce sample names are in format of 10B1[01]01A20221108, we only keep samples with lengh greater than 10 and start with 10
     tempdata = rawData
     tempdata = tempdata[tempdata['Sample ID'].str.len() > 10]
@@ -65,6 +69,8 @@ def getAverageAndStd(rawData, dilutionTable):
 
 #Table with only the blank samples
 def getBlankTable(avgAndStdDev):
+    """Returns a table with only the blank samples, this method is implemented to make sure that 
+    we are captuing the correct blank samples"""
     #Create a new table with only the values needed: Sample ID, Analyte Name, Conc (Calib)1, Conc (Calib)2, Conc (Calib)3. As well as the given RSDs
     tempTable = avgAndStdDev.copy()
     #only keep rows that start with 10B
@@ -78,6 +84,9 @@ def getBlankTable(avgAndStdDev):
 
 #Calculate the PPM using dilution table and the average and standard deviation table
 def calculatePPM(blankTable, dilutionTable, avgAndStdDev):
+    """Calculates the PPM of each sample using the blank table, dilution table, and the average and standard deviation table 
+    using the fomula that is given in the ICPOES data workbook, detailed in the report and documentation
+    """
     #loop through rows of avgAndStdDev
     for index, row in avgAndStdDev.iterrows():
         #get the sample ID
@@ -115,6 +124,8 @@ def calculatePPM(blankTable, dilutionTable, avgAndStdDev):
 
 #Export Everything to csv Files
 def exportToCSV(avgAndStdDev, blankTable, ppmTable):
+    """Exports the average and standard deviation table, blank table, and ppm table to csv files in a new folder called output"""
+
     #make a new folder in current directory and export all tables to csv files
     currentDirectory = os.getcwd()
     newDirectory = currentDirectory + "/output"

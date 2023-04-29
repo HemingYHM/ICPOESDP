@@ -10,28 +10,34 @@ import calibrationTool as ct
 
 
 def SelectRawData():
+    """This function is called when the user clicks the button to select the raw data file.
+      It opens a file dialog box and saves the file path to a global variable called rawData"""
     global rawData
     rawData = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     rawDataButton.config(text = str(rawData))
 
 
 def SelectDilutionTable():
+    """This function is called when the user clicks the button to select the dilution table file."""
     global dilutionTable
     dilutionTable = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     dilutionTableButton.config(text = str(dilutionTable))
 
 def SelectPPMTableForCalibration():
+    """This function is called when the user clicks the button to select the ppm table file."""
     global PPMTableForCalibration
     PPMTableForCalibration = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     PPMTableForCalibrationButton.config(text = str(PPMTableForCalibration))
 
 def processData():
+    """This function is called when the user clicks the button to process the data. It calls the workupData function from dpUtil.py"""
     #button that processes the data
     global table1, table2, table3
     table1, table2, table3 = dp.workupData(rawData, dilutionTable)
     processDataButton.config(text="Data Processed :D")
 
 def exportToCSV(table1, table2, table3):
+    """This function is called when the user clicks the button to export the data. It calls the exportToCSV function from dpUtil.py"""
     #button that asks for a directory to save the data to, and export the three tbales to csv files in that directory
     directory = filedialog.askdirectory()
     table1.to_csv(directory + "/avgAndStdDev.csv")
@@ -40,6 +46,7 @@ def exportToCSV(table1, table2, table3):
     exportDataButton.config(text="Data Exported :D")
 
 def graphCalibration(raw, PPM):
+    """This function is called when the user clicks the button to graph the calibration. It calls the plotCalibrationCurve function from calibrationTool.py"""
     #button that graphs the calibration
     ct.plotCalibrationCurve(raw, PPM)
     graphCalibrationButton.config(text="Calibration Graphed :D")
@@ -49,7 +56,7 @@ def graphCalibration(raw, PPM):
 
 
 
-
+"""Main loop"""
 
 #Initialize the gui
 root = tk.Tk()
