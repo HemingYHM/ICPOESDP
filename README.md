@@ -6,11 +6,7 @@
  - Pandas
  - Numpy
  - Matplotlib
- - Dedicated GUI for the Calibration Curve plotter?(Done)
-
-
  ### How to set up virtual environment for ICPOESDP 
-
  1. We want to first: Initialize the virtual enviroment, please make sure you have python installed, ther version I use is 3.7
 ```
 python3 -m venv ICPOESDP
@@ -29,7 +25,6 @@ pip install pandas
 pip install numpy
 pip install matplotlib
 ```
-
 ### How to use the app
 To run the Data Processing tool, type the following commands into terminal 
 
@@ -37,7 +32,6 @@ To run the Data Processing tool, type the following commands into terminal
 cd [The directory that you downloaded the app]
 python3 nonOfficialdp.py
 ```
-
 Make sure in the GUI that you have selected the Raw Data Table as well as the output PPM table for the Calibration curve in order for it to work correctly.
 
 ***Note:*** 
