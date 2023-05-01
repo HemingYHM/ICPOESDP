@@ -6,18 +6,29 @@
  - Pandas
  - Numpy
  - Matplotlib
+ - Dedicated GUI for the Calibration Curve plotter?(Done)
 
- ### In Progress
- - Shell Script thta initializes an virtual environment and installs the libraries for the user.
- - Dedicated GUI for the Calibration Curve plotter?
 
-To install the libraries, run the following command in the terminal, contact hemingy@berkeley.edu if you run into any issues:
+ ### How to set up virtual environment for ICPOESDP 
+
+ 1. We want to first: Initialize the virtual enviroment, please make sure you have python installed, ther version I use is 3.7
+```
+python3 -m venv ICPOESDP
+```
+or
+```
+python -m venv ICPOESDP
+```
+2. Activate the virtual environment
+```
+source ICPOESDP/bin/activate
+```
+3. Install all the dependencies using pip install
 ```
 pip install pandas
 pip install numpy
 pip install matplotlib
 ```
-
 
 ### How to use the app
 To run the Data Processing tool, type the following commands into terminal 
@@ -27,17 +38,11 @@ cd [The directory that you downloaded the app]
 python3 nonOfficialdp.py
 ```
 
-To run the calibrationTool
-```
-cd [The directory that you downloaded the app]
-python3 calibrationTool.py
-```
 Make sure in the GUI that you have selected the Raw Data Table as well as the output PPM table for the Calibration curve in order for it to work correctly.
 
 ***Note:*** 
 The Calibration curve will plot all elements that are UNIQUE in the table, so make sure that you read the title of the graph and make sure that it is correct. 
  
-*** Close the graph to proceed to next element. ***
 
 ### Links
 - [SALT Lab](https://salt.engin.berkeley.edu/)
