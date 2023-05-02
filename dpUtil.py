@@ -5,6 +5,7 @@ import pandas as pd
 import warnings
 import numpy as np
 import os
+import math
 
 "#disable warnings"
 warnings.filterwarnings('ignore')
@@ -56,10 +57,16 @@ def getAverageAndStd(rawData, dilutionTable):
         tempTable.loc[row[0], 'Mass'] = mass
 
 
-    #Error Column
-    #Error = srqt((Volumn of Digestion * mass of digestion * sd of current)**2 + (Volumn of D * Mass of D * 1.5)**2 + (Volumn of D * Mass of D * 5)**2)
-    tempTable['CalculatedError'] = np.sqrt((tempTable['Digestion Volumn'] * tempTable['Mass'] * tempTable['Calcuated Std Dev'])**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 1.5)**2 + (tempTable['Digestion Volumn'] * tempTable['Mass'] * 5)**2)
+    #Calculate the error of the sample
+    #Calculated Error = sqrt( (B * D/C * deltaA)^2 + (A * D/C * deltaB)^2 + (- (D/C^2 *A *B) * deltaC)^2)
+    #A = Concentration of the analyte in the sample, B = Digestion Volumn, C = Sample Mass, D = dilutionFactor 
+    #DeltaA = Machine given RSD, DeltaB = 2.7, DeltaC = 1.5, DeltaD = 0
+
+    #Calculate the error of the sample
+
+    
     tempTable['XError'] = tempTable["RSD (Conc)"] * tempTable['Conc (Calib)'] / 100
+    tempTable['XError'] = tempTable['XError'].abs()
 
     
     #Y error is the machine given RSD * Int (Corr)
@@ -101,14 +108,34 @@ def calculatePPM(blankTable, dilutionTable, avgAndStdDev):
         dilutionfactor = dilutionTable[dilutionTable['SA ID '] == sampleID]["dilution factor"].values[0].astype(float)
         concentratedInBlank = blankTable[blankTable['Analyte Name'] == analyteName]["Calculated Average"].values[0].astype(float)
         concentrated = row['Calculated Average']
+        rsd = row['RSD (Conc)']
+
 
         calculatedDilutionConstant = (digestionVolumn/mass) * dilutionfactor
         if concentratedInBlank > 0:
+            
             finalPPM = (concentrated - concentratedInBlank) * calculatedDilutionConstant
+            concentrated = concentrated - concentratedInBlank
         else:
             finalPPM = concentrated * calculatedDilutionConstant
         if finalPPM > 0:    
             avgAndStdDev.loc[index, 'Final PPM'] = finalPPM
+
+        delA = rsd * concentrated / 100
+        delB = 2.7
+        delC = 0.0015
+        delD = 0
+
+        A = concentrated
+        B = digestionVolumn
+        C = mass
+        D = dilutionfactor
+
+        calcError = math.sqrt( (B * D/C * delA)**2  + (A * D/C * delB)**2 + (- (D/C**2 *A *B) * delC)**2 + (A*B/C*delD)**2)
+    
+
+        avgAndStdDev.loc[index, 'Calculated Error'] = calcError
+
 
     #remove blanks 
     avgAndStdDev = avgAndStdDev[avgAndStdDev['Sample ID'].str.startswith('10B') == False]
@@ -116,9 +143,11 @@ def calculatePPM(blankTable, dilutionTable, avgAndStdDev):
     avgAndStdDev = avgAndStdDev[avgAndStdDev['Final PPM'].isnull() == False]
 
     #only keep the SA ID, analyte name, and final ppm
-    ppmTable = avgAndStdDev[['Sample ID', 'Analyte Name', 'Final PPM']]
-    return ppmTable
+    ppmTable = avgAndStdDev[['Sample ID', 'Analyte Name', 'Final PPM', 'Calculated Error']]
+    
+    #Loop thorugh the ppm table and add the calculated Error accordingly
 
+    return ppmTable
 
 
 
@@ -135,6 +164,16 @@ def exportToCSV(avgAndStdDev, blankTable, ppmTable):
         os.system(mkdirCommand)
 
     #if the column is empty in avg or ppm table, fill it with 0 
+
+    #Add the Calculated Error from the ppm table to the avgAndStdDev table, only for the rows with same sample ID and analyte name
+    for index, row in ppmTable.iterrows():
+        sampleID = row['Sample ID']
+        analyteName = row['Analyte Name']
+        ppm = row['Final PPM']
+        error = row['Calculated Error']
+        avgAndStdDev.loc[(avgAndStdDev['Sample ID'] == sampleID) & (avgAndStdDev['Analyte Name'] == analyteName), 'Final PPM'] = ppm
+        avgAndStdDev.loc[(avgAndStdDev['Sample ID'] == sampleID) & (avgAndStdDev['Analyte Name'] == analyteName), 'Calculated Error'] = error
+
 
     avgAndStdDev.to_csv(newDirectory + "/avgAndStdDev.csv")
     blankTable.to_csv(newDirectory + "/blankTable.csv")

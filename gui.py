@@ -23,11 +23,12 @@ def SelectDilutionTable():
     dilutionTable = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     dilutionTableButton.config(text = str(dilutionTable))
 
-def SelectPPMTableForCalibration():
-    """This function is called when the user clicks the button to select the ppm table file."""
-    global PPMTableForCalibration
-    PPMTableForCalibration = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
-    PPMTableForCalibrationButton.config(text = str(PPMTableForCalibration))
+def SelectAvgTable():
+    """This function is called when the user clicks the button to select the average table file."""
+    global avgTable1
+    avgTable1 = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
+    avgTableButton.config(text = str(avgTable1))
+
 
 def processData():
     """This function is called when the user clicks the button to process the data. It calls the workupData function from dpUtil.py"""
@@ -81,12 +82,12 @@ processDataButton.pack()
 exportDataButton = tk.Button(root, text="Export Data", command=lambda: exportToCSV(table1, table2, table3))
 exportDataButton.pack()
 
-#Add a button to select the ppm table for calibration
-PPMTableForCalibrationButton = tk.Button(root, text="Select PPM Table For Calibration", command=lambda: SelectPPMTableForCalibration())
-PPMTableForCalibrationButton.pack()
+#Button that ask for the user to select the average table file
+avgTableButton = tk.Button(root, text="Select Average Table File", command=lambda: SelectAvgTable())
+avgTableButton.pack()
 
 #Add a button to graph the calibration
-graphCalibrationButton = tk.Button(root, text="Graph Calibration", command=lambda: graphCalibration(rawData, PPMTableForCalibration))
+graphCalibrationButton = tk.Button(root, text="Graph Calibration", command=lambda: graphCalibration(rawData, avgTable1))
 graphCalibrationButton.pack()
 
 

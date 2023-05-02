@@ -4,8 +4,6 @@ import numpy as np
 #TEST
 #Plotting the calibration cuvre for each analyte
 
-deltaC = 1.5
-deltaD = 5
 
 def plotCalibrationCurve(rawData, avgTable):
     """Reads in the raw data, and first constructs the calibration table
@@ -28,7 +26,7 @@ def plotCalibrationCurve(rawData, avgTable):
     tempTable = tempTable[tempTable['Sample ID'].str.endswith('ppm')]
     #if there are duplicate Sample ID, and analyte name keep the latter one
     tempTable = tempTable.drop_duplicates(subset=['Sample ID', 'Analyte Name'], keep='last')
-    ppmError = pd.read_csv('avgAndStdDev.csv')
+    ppmError = pd.read_csv(avgTable)
     #Graph Name: Analyte Name Calibration Curve 
     #X axis: Sample ID
     #Y axis: Int (Corr)
@@ -57,9 +55,15 @@ def plotCalibrationCurve(rawData, avgTable):
         sampleID = elementTable['Sample ID']
         sampleX = elementTable['Conc (Calib)']
         sampleY = elementTable['Int (Corr)']
-        sampleXError = elementTable['RSD (Conc)']
+        print(elementTable)
+
+        sampleXError = elementTable['XError']
+
         #absolute value of all Y errors
         sampleYError = elementTable['YError'].abs()
+        #absolute value of all X errors
+        sampleXError = elementTable['XError'].abs()
+
         
         #plot points
         plt.errorbar(sampleX, sampleY, xerr=sampleXError, yerr=sampleYError, fmt='o', label='Data Points')
@@ -69,6 +73,8 @@ def plotCalibrationCurve(rawData, avgTable):
         plt.xlabel('PPM')
         plt.ylabel('Intensity')
         plt.show()
+
+
 
 
 
