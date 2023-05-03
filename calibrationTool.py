@@ -1,10 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-#TEST
-#Plotting the calibration cuvre for each analyte
-
-
 def plotCalibrationCurve(rawData, avgTable):
     """Reads in the raw data, and first constructs the calibration table
 
@@ -16,7 +12,6 @@ def plotCalibrationCurve(rawData, avgTable):
     Then, create a line of best fit for each analyte, and plot the line of best fit with the data points
     
     """
-
     rawData = pd.read_csv(rawData)
     #Create a new table with only the values needed: Sample ID, Analyte Name, Int (Corr)
     tempTable = rawData[['Sample ID', 'Analyte Name', 'Int (Corr)']]
@@ -49,48 +44,23 @@ def plotCalibrationCurve(rawData, avgTable):
         #plot all these red and name them calibration points
         plt.plot(xfit, yfit, 'ro', label='Calibration Points')
         plt.plot(xfit, m*xfit + b, label='Line of Best Fit')
-
-        #calculate the R value from xfit and y fit
-        rsquared = np.corrcoef(xfit, yfit)[0,1]**2
-        #label R value on legend
-
-
         elementTable = ppmError[ppmError['Analyte Name'] == analyte]
         sampleID = elementTable['Sample ID']
         sampleX = elementTable['Conc (Calib)']
         sampleY = elementTable['Int (Corr)']
         print(elementTable)
-
         sampleXError = elementTable['XError']
-
         #absolute value of all Y errors
         sampleYError = elementTable['YError'].abs()
         #absolute value of all X errors
         sampleXError = elementTable['XError'].abs()
-
-        
         #plot points
         plt.errorbar(sampleX, sampleY, xerr=sampleXError, yerr=sampleYError, fmt='o', label='Sample Points')
-
-
         plt.title(analyte + ' Calibration Curve')
         plt.xlabel('PPM')
         plt.ylabel('Intensity')
         plt.legend()
         plt.show()
-
-
-
-
-
-        
-
-
-
-
-
-    #Error Propagation
-
 
 
 

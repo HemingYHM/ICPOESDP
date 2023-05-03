@@ -1,15 +1,10 @@
-"""Data Processing Utility Functions"""
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import warnings
 import numpy as np
 import os
 import math
-
-"#disable warnings"
 warnings.filterwarnings('ignore')
-
 #read raw data from file and return pandas table
 def readData(fileName):
     """Reads data from a csv file and returns a pandas table"""

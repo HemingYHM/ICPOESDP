@@ -31,7 +31,7 @@ To run the Data Processing tool, type the following commands into terminal
 
 ```
 cd [The directory that you downloaded the app]
-python3 gui.py
+python gui.py
 ```
 Make sure in the GUI that you have selected the Raw Data Table as well as the output PPM table for the Calibration curve in order for it to work correctly.
 

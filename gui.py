@@ -1,6 +1,3 @@
-#write a program with a gui that asks for two user imputs, one named Rawdata, one named dilution table. 
-#Then it will save it to two variables, and apply dpUtil functions to it.
-
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import *
@@ -8,14 +5,12 @@ import pandas as pd
 import dpUtil as dp
 import calibrationTool as ct
 
-
 def SelectRawData():
     """This function is called when the user clicks the button to select the raw data file.
       It opens a file dialog box and saves the file path to a global variable called rawData"""
     global rawData
     rawData = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     rawDataButton.config(text = str(rawData))
-
 
 def SelectDilutionTable():
     """This function is called when the user clicks the button to select the dilution table file."""
@@ -28,7 +23,6 @@ def SelectAvgTable():
     global avgTable1
     avgTable1 = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
     avgTableButton.config(text = str(avgTable1))
-
 
 def processData():
     """This function is called when the user clicks the button to process the data. It calls the workupData function from dpUtil.py"""
@@ -51,10 +45,6 @@ def graphCalibration(raw, PPM):
     #button that graphs the calibration
     ct.plotCalibrationCurve(raw, PPM)
     graphCalibrationButton.config(text="Calibration Graphed :D")
-
-
-
-
 
 
 """Main loop"""
