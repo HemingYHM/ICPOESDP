@@ -50,6 +50,10 @@ def plotCalibrationCurve(rawData, avgTable):
         plt.plot(xfit, yfit, 'ro', label='Calibration Points')
         plt.plot(xfit, m*xfit + b, label='Line of Best Fit')
 
+        #calculate the R value from xfit and y fit
+        rsquared = np.corrcoef(xfit, yfit)[0,1]**2
+        #label R value on legend
+
 
         elementTable = ppmError[ppmError['Analyte Name'] == analyte]
         sampleID = elementTable['Sample ID']
@@ -66,12 +70,13 @@ def plotCalibrationCurve(rawData, avgTable):
 
         
         #plot points
-        plt.errorbar(sampleX, sampleY, xerr=sampleXError, yerr=sampleYError, fmt='o', label='Data Points')
+        plt.errorbar(sampleX, sampleY, xerr=sampleXError, yerr=sampleYError, fmt='o', label='Sample Points')
 
 
         plt.title(analyte + ' Calibration Curve')
         plt.xlabel('PPM')
         plt.ylabel('Intensity')
+        plt.legend()
         plt.show()
 
 

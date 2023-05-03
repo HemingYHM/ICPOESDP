@@ -122,7 +122,7 @@ def calculatePPM(blankTable, dilutionTable, avgAndStdDev):
             avgAndStdDev.loc[index, 'Final PPM'] = finalPPM
 
         delA = rsd * concentrated / 100
-        delB = 2.7
+        delB = 2.8
         delC = 0.0015
         delD = 0
 
